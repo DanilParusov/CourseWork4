@@ -1,5 +1,5 @@
 from app.dao.user import UserDAO
-from app.helpers import generate_password_digest
+from app.helpers import make_user_password_hash
 
 
 class UserService:
@@ -15,14 +15,16 @@ class UserService:
         return user
 
     def get_all_users(self):
-        users = UserDAO(self.dao).get_all()
-        return users
+        return self.dao.get_all()
 
     def create(self, new_pd):
         user_password = new_pd.get("password")
         if user_password:
-            new_pd["password"] = generate_password_digest(user_password)
-        user = UserDAO(self.dao).create(user_password)
+            new_pd["password"] = make_user_password_hash(user_password)
+        user = {
+            "password": user_password
+        }
+        user = self.dao.create(user)
         return user
 
     def update(self, new_pd):
@@ -33,3 +35,4 @@ class UserService:
     def update_password(self, new_pd):
         user_password_1 = new_pd.get("password_1")
         user_password_2 = new_pd.get("password_2")
+        return ""

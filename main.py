@@ -1,4 +1,4 @@
-from flask import Flask
+import flask
 from flask_restx import Api
 
 from app.config import Config
@@ -11,7 +11,7 @@ from app.views.auth import auth_ns
 
 
 def create_app(config_object):
-    app = Flask(__name__)
+    app = flask.Flask(__name__)
     app.config.from_object(config_object)
     register_extensions(app)
     return app

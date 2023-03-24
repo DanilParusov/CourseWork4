@@ -1,3 +1,5 @@
+import json
+
 from app.dao.model.user import User
 
 
@@ -15,6 +17,7 @@ class UserDAO:
         return self.session.query(User).all()
 
     def create(self, user_d):
+        user_d = json.loads(user_d)
         ent = User(**user_d)
         self.session.add(ent)
         self.session.commit()

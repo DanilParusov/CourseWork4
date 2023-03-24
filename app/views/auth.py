@@ -2,6 +2,7 @@ from flask_restx import abort, Namespace, Resource
 from flask import request
 
 from app.helpers import login_user, refresh_user_token
+from app.implemented import user_service
 from app.service.user import UserService
 from app.setup_db import db
 
@@ -19,8 +20,8 @@ class AuthView(Resource):
         if None in [email, password]:
             abort(400)
 
-        user = UserService(db.session).get_item_by_email(email=email)
-        tokens = login_user(request.json, user)
+        user = user_service.get_item_by_email(email)
+        tokens = login_user(req_json, user)
         return tokens, 201
 
 
@@ -38,3 +39,5 @@ class AuthRegView(Resource):
         req_json = request.json
         if None in req_json:
             abort(400, "не корректный запрос")
+        user_service.create(req_json)
+        return "OK", 201
