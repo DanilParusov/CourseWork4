@@ -3,11 +3,13 @@ import hashlib
 import hmac
 import datetime
 import calendar
+from functools import wraps
+
 import jwt
 
 from typing import Union
 from flask import current_app, request, abort
-from app.constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS
+from app.constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS, JWT_ALGORITHM, JWT_SECRET
 
 
 
@@ -70,3 +72,21 @@ def refresh_user_token(reg_json):
     if data:
         tokens = generate_token(data)
         return tokens
+
+def auth_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'Authorization' not in request.headers:
+            abort(401)
+
+        data = request.headers['Authorization']
+        token = data.split("Bearer ")[-1]
+
+        try:
+            token_data = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            email = token_data.get('email')
+        except Exception as e:
+            print(e)
+            abort(401)
+        return func(*args, **kwargs)
+    return wrapper

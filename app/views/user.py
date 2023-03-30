@@ -1,8 +1,9 @@
-from flask import request, abort
+from flask import request, abort, g
 from flask_restx import Resource, Namespace
 
 from app.dao.model.user import UserSchema
 from app.implemented import user_service
+from app.helpers import auth_required
 
 
 user_ns = Namespace('users')
@@ -12,16 +13,15 @@ user_schema = UserSchema()
 
 @user_ns.route("/")
 class UsersView(Resource):
-    # @admin_required
-    @user_ns.response(200, "OK")
+    @auth_required
     def get(self):
         """Get all users"""
-        return users_schema.dump(user_service.get_all_users())
+        email = g.email
+        return users_schema.dump(user_service.get_item_by_email(email))
 
 
 @user_ns.route("/<int:user_id>")
 class UserView(Resource):
-    # @admin_required
     def get(self, user_id: int):
         """Get user by id"""
         return user_schema.dump(user_service.get_item_by_id(user_id))
